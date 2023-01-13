@@ -5,7 +5,7 @@
 # Ejecutar en desarrollo
 
 1. Clonar repositorio
-2. Ejecitar
+2. Ejecutar
 ```
 npm install
 ```
