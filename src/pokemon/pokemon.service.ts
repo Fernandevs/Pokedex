@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 
@@ -14,10 +15,13 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class PokemonService {
+  private readonly _defaultLimit: number;
   constructor(
     @InjectModel(Pokemon.name)
-    private readonly _pokemonModel: Model<Pokemon>
+    private readonly _pokemonModel: Model<Pokemon>,
+    private readonly _configService: ConfigService
   ) {
+    this._defaultLimit = this._configService.get<number>('_defaultLimit');
   }
 
   async create(createPokemonDto: CreatePokemonDto) {
@@ -33,7 +37,7 @@ export class PokemonService {
   }
 
   findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    const { limit = 5, offset = 0 } = paginationDto;
 
     return this._pokemonModel.find().limit(limit).skip(offset).sort({
       pokemonNumber: 1
@@ -77,8 +81,6 @@ export class PokemonService {
   }
 
   private handleExceptions (e: any) {
-    console.log(e);
-
     if (e.code === 11000)
       throw new BadRequestException(`Pokemon already exists in db ${ JSON.stringify(e.keyValue) }`);
   }
